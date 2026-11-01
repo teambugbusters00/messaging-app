@@ -12,6 +12,11 @@ function cleanText(value) {
 
 export function registerChatHandlers(io) {
   io.on("connection", (socket) => {
+    socket.on("chat:leave", (payload = {}) => {
+      const room = cleanText(payload.room);
+      if (room) socket.leave(room);
+    });
+
     socket.on("chat:join", (payload = {}, ack = () => {}) => {
       const room = cleanText(payload.room) || DEFAULT_ROOM;
       if (room.length > 80) return ack({ ok: false, error: "Room name is too long." });
