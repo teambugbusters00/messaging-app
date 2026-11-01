@@ -28,6 +28,7 @@ export default function App() {
   const socketRef = useRef(null);
   const bottomRef = useRef(null);
   const typingTimer = useRef(null);
+  const joinedRoom = useRef(null);
 
   const current = chats.find(c => c.id === active) || chats[0];
   const filteredChats = useMemo(() => chats.filter(c => c.name.toLowerCase().includes(search.toLowerCase())), [chats, search]);
@@ -46,6 +47,10 @@ export default function App() {
 
   useEffect(() => {
     if (!socketRef.current || !connected) return;
+    if (joinedRoom.current && joinedRoom.current !== active) {
+      socketRef.current.emit("chat:leave", { room: joinedRoom.current });
+    }
+    joinedRoom.current = active;
     setMessages([]);
     socketRef.current.emit("chat:join", { room: active }, response => {
       if (response?.ok) setMessages(response.messages || []);
